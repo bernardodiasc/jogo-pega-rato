@@ -133,7 +133,8 @@
             let gato
 
             function escrevePontuacao () {
-                $pontuacao.innerHTML = `Jogada: ${jogadas} | Pontos: ${pontos} | Dificuldade: ${DIFICULDADE}`
+                const pontuacao = pontos / jogadas
+                $pontuacao.innerHTML = `Pontuação: ${isNaN(pontuacao) ? 0 : parseFloat(pontuacao).toFixed(2)} | Jogadas: ${jogadas} | Ratos: ${pontos} | Dificuldade: ${DIFICULDADE}`
             }
 
             function montaJogo () {
