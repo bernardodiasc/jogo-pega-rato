@@ -2,6 +2,7 @@
 <html>
 
   <head>
+    <meta name="viewport" content="width=600, user-scalable=no"/>
     <title>JOGO PEGA RATO</title>
     <style>
       html {
@@ -154,11 +155,11 @@
       let gato
 
       function escrevePontuacao () {
-        const pontuacao = pontos / jogadas
+        const pontuacao = pontos / jogadas * 100
         $pontuacao.innerHTML = [
           `<strong>Movimentos:</strong> ${jogadas}`,
-          `<strong>Ratos capturados:</strong> ${pontos}`,
-          `<strong>Pontuação:</strong> ${isNaN(pontuacao) ? 0 : parseFloat(pontuacao).toFixed(2) * 100}%`,
+          `<strong>Capturados:</strong> ${pontos}`,
+          `<strong>Pontuação:</strong> ${isNaN(pontuacao) ? 0 : parseFloat(pontuacao).toFixed(0)}%`,
           // `Dificuldade: ${DIFICULDADE}`
         ].join(' - ')
       }
@@ -166,6 +167,7 @@
       function habilitaBotoesDirecionais (posicao) {
         const todosLocais = $body.querySelectorAll('.local')
         todosLocais.forEach(local => {
+          local.onclick = null
           local.classList.remove('mover')
         })
         
