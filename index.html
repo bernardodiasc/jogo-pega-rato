@@ -45,8 +45,21 @@
         justify-content: center;
         border-radius: 5px;
       }
+      
+      .local.mover {
+        cursor: pointer;
+        box-shadow: inset 0 0 5px 4px #437072;
+      }
 
-      .local::before {
+      .local.mover:hover {
+        box-shadow: inset 0 0 1px 5px #437072;
+      }
+
+      .local.mover:active {
+        box-shadow: inset 0 0 1px 10px #75c4c8;
+      }
+
+      /* .local::before {
         content: attr(data-id);
         font-size: 12px;
         position: absolute;
@@ -56,7 +69,7 @@
         padding: 3px 6px 3px 4px;
         border-radius: 0 0 5px 0;
         font-weight: normal;
-      }
+      } */
 
       #gato,
       .rato {
@@ -84,6 +97,10 @@
         font-style: italic;
       }
 
+      #info {
+        width: min-content;
+        min-width: fit-content;
+      }
     </style>
   </head>
 
@@ -93,6 +110,11 @@
       <div id="pontuacao"></div>
       <div id="mensagem"></div>
       <div id="tabuleiro"></div>
+      <p id="info">
+        Use as teclas direcionais para mover o Gato.
+        A cada 3 movimentos (Dificuldade) um novo rato aparecerá em algum espaço vazio aleatório.
+        Você precisa pegar todos os ratos para vencer a partida.
+      </p>
     </main>
 
     <script>
@@ -102,7 +124,6 @@
       const $mensagem = $body.querySelector('#mensagem')
       const $tabuleiro = $body.querySelector('#tabuleiro')
 
-      // <div data-id="25" class="local">
         const desenhoGato = `<span id="gato"> .       .
  |\\_---_/|
 /   o_o   \\
@@ -134,7 +155,39 @@
 
       function escrevePontuacao () {
         const pontuacao = pontos / jogadas
-        $pontuacao.innerHTML = `Pontuação: ${isNaN(pontuacao) ? 0 : parseFloat(pontuacao).toFixed(2)} | Jogadas: ${jogadas} | Ratos: ${pontos} | Dificuldade: ${DIFICULDADE}`
+        $pontuacao.innerHTML = [
+          `<strong>Movimentos:</strong> ${jogadas}`,
+          `<strong>Ratos capturados:</strong> ${pontos}`,
+          `<strong>Pontuação:</strong> ${isNaN(pontuacao) ? 0 : parseFloat(pontuacao).toFixed(2) * 100}%`,
+          // `Dificuldade: ${DIFICULDADE}`
+        ].join(' - ')
+      }
+
+      function habilitaBotoesDirecionais (posicao) {
+        const todosLocais = $body.querySelectorAll('.local')
+        todosLocais.forEach(local => {
+          local.classList.remove('mover')
+        })
+        
+        const moverAcima = (posicao - 5 < 1) ? (posicao + 20) : (posicao - 5)
+        const moverAbaixo = (posicao > 20) ? (posicao - 20) : (posicao + 5)
+        const moverEsquerda = (posicao % 5 === 1) ? (posicao + 4) : (posicao - 1)
+        const moverDireita = (posicao % 5 === 0) ? (posicao - 4) : (posicao + 1) 
+
+        const $moverAcima = $body.querySelector(`[data-id="${String(moverAcima).padStart(2, '0')}"]`)
+        const $moverAbaixo = $body.querySelector(`[data-id="${String(moverAbaixo).padStart(2, '0')}"]`)
+        const $moverEsquerda = $body.querySelector(`[data-id="${String(moverEsquerda).padStart(2, '0')}"]`)
+        const $moverDireita = $body.querySelector(`[data-id="${String(moverDireita).padStart(2, '0')}"]`)
+        
+        $moverAcima.classList.add('mover')
+        $moverAbaixo.classList.add('mover')
+        $moverEsquerda.classList.add('mover')
+        $moverDireita.classList.add('mover')
+        
+        $moverAcima.onclick = () => mover({ keyCode: TECLAS.CIMA })
+        $moverAbaixo.onclick = () => mover({ keyCode: TECLAS.BAIXO })
+        $moverEsquerda.onclick = () => mover({ keyCode: TECLAS.ESQUERDA })
+        $moverDireita.onclick = () => mover({ keyCode: TECLAS.DIREITA })
       }
 
       function montaJogo () {
@@ -156,6 +209,7 @@
         const localGato = $tabuleiro.querySelector(`[data-id="${String(posicaoGato).padStart(2, '0')}"]`)
         localGato.innerHTML = desenhoGato
         gato = $body.querySelector('#gato')
+        habilitaBotoesDirecionais(posicaoGato)
       }
 
       montaJogo()
@@ -194,6 +248,8 @@
             $mensagem.innerHTML = status = MENSAGENS[2]
           }
         }
+
+        habilitaBotoesDirecionais(novaPosicao)
       }
 
       function mover (e) {
