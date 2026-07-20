@@ -198,6 +198,41 @@ h1 {
 
 #info b { color: var(--texto); }
 
+/* Portrait em telas baixas: aperta os espaços para não precisar rolar */
+@media (orientation: portrait) and (max-height: 680px) {
+  main { gap: 9px; }
+}
+
+/* ===== Celular deitado (landscape) =====
+   Em telas baixas, o tabuleiro vai para o lado das informações,
+   aproveitando a largura e evitando rolagem vertical. */
+@media (orientation: landscape) and (max-height: 560px) {
+  :root { --board: min(84vh, 48vw, 440px); }
+
+  main {
+    width: auto;
+    max-width: none;
+    display: grid;
+    align-content: center;
+    justify-items: center;
+    gap: 8px 22px;
+    grid-template-columns: minmax(0, 300px) auto;
+    grid-template-areas:
+      "titulo   board"
+      "placar   board"
+      "mensagem board"
+      "botao    board"
+      "ajuda    board";
+  }
+
+  h1         { grid-area: titulo; }
+  #pontuacao { grid-area: placar; width: 100%; }
+  #mensagem  { grid-area: mensagem; width: 100%; }
+  #tabuleiro { grid-area: board; align-self: center; }
+  #reiniciar { grid-area: botao; }
+  #info      { grid-area: ajuda; font-size: 12px; line-height: 1.5; }
+}
+
 /* Respeita quem prefere menos animação */
 @media (prefers-reduced-motion: reduce) {
   * { animation: none !important; transition: none !important; }
