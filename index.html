@@ -1,106 +1,212 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
 
   <head>
-    <meta name="viewport" content="width=600, user-scalable=no"/>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <meta name="theme-color" content="#1f2a44" />
     <title>JOGO PEGA RATO</title>
     <style>
-      html {
+      :root {
+        --bg-1: #263657;
+        --bg-2: #1a2440;
+        --card: rgba(255, 255, 255, 0.06);
+        --card-border: rgba(255, 255, 255, 0.12);
+        --cell: #4f8a8b;
+        --cell-top: #5fa3a4;
+        --cell-move: #6fc3c5;
+        --cell-move-glow: #9be7e9;
+        --accent: #ff6b6b;
+        --accent-2: #ffa14a;
+        --text: #f4f7fb;
+        --muted: rgba(244, 247, 251, 0.72);
+        /* Tamanho do tabuleiro: nunca maior que 460px, sempre cabendo na tela
+           (largura e altura), o que resolve o "esticar" no desktop e no celular. */
+        --board: min(92vw, 68vh, 460px);
+        --gap: clamp(4px, 1.4vw, 9px);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
         height: 100%;
       }
 
       body {
-        height: 100%;
+        margin: 0;
+        min-height: 100%;
         display: flex;
         justify-content: center;
         align-items: center;
-        margin: 0;
-        background-color: antiquewhite;
-        font-family: sans-serif;
+        padding: env(safe-area-inset-top, 16px) 16px env(safe-area-inset-bottom, 16px);
+        background:
+          radial-gradient(120% 120% at 50% 0%, #33456e 0%, var(--bg-1) 45%, var(--bg-2) 100%);
+        color: var(--text);
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      main {
+        width: 100%;
+        max-width: 500px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 14px;
       }
 
       h1 {
+        margin: 0;
         text-align: center;
-      }
-      
-      #tabuleiro {
-        display: grid;
-        grid-template-columns: repeat(5, 1fr);
-        grid-template-rows: repeat(5, 1fr);
-        grid-column-gap: 5px;
-        grid-row-gap: 5px;
-      }
-
-      .local {
-        font-size: 40px;
-        font-weight: bold;
-        line-height: 1;
-        color: white;
-        background: cadetblue;
-        height: 100px;
-        width: 100px;
-        padding: 2px;
-        position: relative;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 5px;
-      }
-      
-      .local.mover {
-        cursor: pointer;
-        box-shadow: inset 0 0 5px 4px #437072;
-      }
-
-      .local.mover:hover {
-        box-shadow: inset 0 0 1px 5px #437072;
-      }
-
-      .local.mover:active {
-        box-shadow: inset 0 0 1px 10px #75c4c8;
-      }
-
-      /* .local::before {
-        content: attr(data-id);
-        font-size: 12px;
-        position: absolute;
-        top: 0;
-        left: 0;
-        background-color: salmon;
-        padding: 3px 6px 3px 4px;
-        border-radius: 0 0 5px 0;
-        font-weight: normal;
-      } */
-
-      #gato,
-      .rato {
-        font-family: monospace;
-        font-size: 12px;
-        white-space: pre;
+        font-size: clamp(22px, 6vw, 30px);
+        letter-spacing: 2px;
+        font-weight: 800;
+        background: linear-gradient(90deg, var(--accent), var(--accent-2));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
       }
 
       #pontuacao {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 8px;
+        width: 100%;
+        margin: 0;
+      }
+
+      #pontuacao .stat {
+        flex: 1 1 0;
+        min-width: 84px;
+        background: var(--card);
+        border: 1px solid var(--card-border);
+        border-radius: 12px;
+        padding: 8px 6px;
         text-align: center;
-        margin: 0 0 20px;
-        height: 20px;
-        font-size: 20px;
-        line-height: 1; 
+        line-height: 1.2;
+      }
+
+      #pontuacao .stat b {
+        display: block;
+        font-size: clamp(18px, 5vw, 22px);
+        font-weight: 800;
+      }
+
+      #pontuacao .stat span {
+        display: block;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        color: var(--muted);
       }
 
       #mensagem {
-        margin: 0px 0 20px;
-        padding: 30px 20px;
-        background: salmon;
-        border-radius: 10px;
+        width: 100%;
+        margin: 0;
+        padding: 14px 18px;
+        background: linear-gradient(90deg, var(--accent), var(--accent-2));
+        border-radius: 14px;
         text-align: center;
-        color: white;
-        font-size: 20px;
-        font-style: italic;
+        color: #fff;
+        font-size: clamp(14px, 4vw, 17px);
+        font-weight: 600;
+        box-shadow: 0 8px 20px -8px rgba(255, 107, 107, 0.6);
+        transition: background 0.25s ease, box-shadow 0.25s ease;
+      }
+
+      #mensagem.venceu {
+        background: linear-gradient(90deg, #22c55e, #4ade80);
+        box-shadow: 0 8px 20px -8px rgba(34, 197, 94, 0.6);
+      }
+
+      #tabuleiro {
+        width: var(--board);
+        height: var(--board);
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        grid-template-rows: repeat(5, 1fr);
+        gap: var(--gap);
+        font-size: calc(var(--board) / 9);
+      }
+
+      .local {
+        border-radius: 12px;
+        background: linear-gradient(180deg, var(--cell-top), var(--cell));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        line-height: 1;
+        user-select: none;
+        box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.18);
+        transition: transform 0.08s ease, box-shadow 0.15s ease, filter 0.15s ease;
+      }
+
+      .local.mover {
+        cursor: pointer;
+        background: linear-gradient(180deg, var(--cell-move), var(--cell-move) 60%, #57a9ab);
+        box-shadow:
+          inset 0 0 0 3px var(--cell-move-glow),
+          0 0 12px -2px var(--cell-move-glow);
+      }
+
+      @media (hover: hover) {
+        .local.mover:hover {
+          filter: brightness(1.08);
+        }
+      }
+
+      .local.mover:active {
+        transform: scale(0.94);
+        filter: brightness(1.15);
+      }
+
+      #gato,
+      .rato {
+        display: block;
+        line-height: 1;
+      }
+
+      #gato {
+        animation: pop 0.18s ease;
+      }
+
+      @keyframes pop {
+        from { transform: scale(0.6); }
+        to   { transform: scale(1); }
+      }
+
+      #reiniciar {
+        appearance: none;
+        border: 1px solid var(--card-border);
+        background: var(--card);
+        color: var(--text);
+        font-size: 15px;
+        font-weight: 700;
+        padding: 12px 22px;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: transform 0.08s ease, background 0.15s ease;
+      }
+
+      #reiniciar:hover {
+        background: rgba(255, 255, 255, 0.12);
+      }
+
+      #reiniciar:active {
+        transform: scale(0.96);
       }
 
       #info {
-        width: min-content;
-        min-width: fit-content;
+        margin: 0;
+        max-width: 460px;
+        text-align: center;
+        font-size: 13px;
+        line-height: 1.5;
+        color: var(--muted);
       }
     </style>
   </head>
@@ -111,10 +217,12 @@
       <div id="pontuacao"></div>
       <div id="mensagem"></div>
       <div id="tabuleiro"></div>
+      <button id="reiniciar" type="button">Reiniciar</button>
       <p id="info">
-        Use as teclas direcionais para mover o Gato.
-        A cada 3 movimentos (Dificuldade) um novo rato aparecerá em algum espaço vazio aleatório.
-        Você precisa pegar todos os ratos para vencer a partida.
+        No computador, use as setas do teclado para mover o gato.
+        No celular, toque nos espaços vizinhos destacados.
+        A cada 3 movimentos um novo rato aparece em um espaço vazio.
+        Pegue todos os ratos para vencer!
       </p>
     </main>
 
@@ -124,17 +232,11 @@
       const $pontuacao = $body.querySelector('#pontuacao')
       const $mensagem = $body.querySelector('#mensagem')
       const $tabuleiro = $body.querySelector('#tabuleiro')
+      const $reiniciar = $body.querySelector('#reiniciar')
 
-        const desenhoGato = `<span id="gato"> .       .
- |\\_---_/|
-/   o_o   \\
-|    U    |
-\\  ._I_.  /
- \`-_____-'</span>`
-      const desenhoRato = `<span class="rato">()-()
- \\"/
-  \`</span>`
-  
+      const desenhoGato = `<span id="gato">🐱</span>`
+      const desenhoRato = `<span class="rato">🐭</span>`
+
       const TECLAS = {
         CIMA: 38,
         BAIXO: 40,
@@ -145,7 +247,7 @@
 
       const MENSAGENS = [
         'Pegue todos os ratos...',
-        'VOCE CONSEGUIU PEGAR TODOS OS RATOS!',
+        'VOCÊ CONSEGUIU PEGAR TODOS OS RATOS!',
         'Ops, os ratos voltaram, pegue eles!'
       ]
 
@@ -154,14 +256,19 @@
       let status = $mensagem.innerHTML = MENSAGENS[0]
       let gato
 
+      function atualizaMensagem (novoStatus) {
+        status = novoStatus
+        $mensagem.innerHTML = novoStatus
+        $mensagem.classList.toggle('venceu', novoStatus === MENSAGENS[1])
+      }
+
       function escrevePontuacao () {
         const pontuacao = pontos / jogadas * 100
         $pontuacao.innerHTML = [
-          `<strong>Movimentos:</strong> ${jogadas}`,
-          `<strong>Capturados:</strong> ${pontos}`,
-          `<strong>Pontuação:</strong> ${isNaN(pontuacao) ? 0 : parseFloat(pontuacao).toFixed(0)}%`,
-          // `Dificuldade: ${DIFICULDADE}`
-        ].join(' - ')
+          ['Movimentos', jogadas],
+          ['Capturados', pontos],
+          ['Pontuação', `${isNaN(pontuacao) ? 0 : parseFloat(pontuacao).toFixed(0)}%`]
+        ].map(([rotulo, valor]) => `<div class="stat"><b>${valor}</b><span>${rotulo}</span></div>`).join('')
       }
 
       function habilitaBotoesDirecionais (posicao) {
@@ -170,22 +277,22 @@
           local.onclick = null
           local.classList.remove('mover')
         })
-        
+
         const moverAcima = (posicao - 5 < 1) ? (posicao + 20) : (posicao - 5)
         const moverAbaixo = (posicao > 20) ? (posicao - 20) : (posicao + 5)
         const moverEsquerda = (posicao % 5 === 1) ? (posicao + 4) : (posicao - 1)
-        const moverDireita = (posicao % 5 === 0) ? (posicao - 4) : (posicao + 1) 
+        const moverDireita = (posicao % 5 === 0) ? (posicao - 4) : (posicao + 1)
 
         const $moverAcima = $body.querySelector(`[data-id="${String(moverAcima).padStart(2, '0')}"]`)
         const $moverAbaixo = $body.querySelector(`[data-id="${String(moverAbaixo).padStart(2, '0')}"]`)
         const $moverEsquerda = $body.querySelector(`[data-id="${String(moverEsquerda).padStart(2, '0')}"]`)
         const $moverDireita = $body.querySelector(`[data-id="${String(moverDireita).padStart(2, '0')}"]`)
-        
+
         $moverAcima.classList.add('mover')
         $moverAbaixo.classList.add('mover')
         $moverEsquerda.classList.add('mover')
         $moverDireita.classList.add('mover')
-        
+
         $moverAcima.onclick = () => mover({ keyCode: TECLAS.CIMA })
         $moverAbaixo.onclick = () => mover({ keyCode: TECLAS.BAIXO })
         $moverEsquerda.onclick = () => mover({ keyCode: TECLAS.ESQUERDA })
@@ -195,11 +302,11 @@
       function montaJogo () {
         jogadas = 0
         pontos = 0
-        $mensagem.innerHTML = MENSAGENS[0]
+        atualizaMensagem(MENSAGENS[0])
         $tabuleiro.innerHTML = ''
         escrevePontuacao()
         const totalLocais = 25
-        for (i = 1; i <= totalLocais; i++) {
+        for (let i = 1; i <= totalLocais; i++) {
           const local = document.createElement('div')
           local.innerHTML = desenhoRato
           local.className = 'local'
@@ -207,7 +314,7 @@
           $tabuleiro.appendChild(local)
         }
 
-        const posicaoGato = Math.floor(Math.random() * totalLocais)
+        const posicaoGato = Math.floor(Math.random() * totalLocais) + 1
         const localGato = $tabuleiro.querySelector(`[data-id="${String(posicaoGato).padStart(2, '0')}"]`)
         localGato.innerHTML = desenhoGato
         gato = $body.querySelector('#gato')
@@ -235,7 +342,7 @@
             locaisVazios.push(local)
           }
         })
-        
+
         const novoRato = Math.floor(Math.random() * locaisVazios.length)
 
         if (jogadas > 0 && jogadas % DIFICULDADE === 0) {
@@ -244,10 +351,10 @@
         }
 
         if (locaisVazios.length === (todosLocais.length - 1)) {
-          $mensagem.innerHTML = status = MENSAGENS[1]
+          atualizaMensagem(MENSAGENS[1])
         } else {
           if (status === MENSAGENS[1]) {
-            $mensagem.innerHTML = status = MENSAGENS[2]
+            atualizaMensagem(MENSAGENS[2])
           }
         }
 
@@ -301,7 +408,15 @@
         escrevePontuacao()
       }
 
-      document.onkeydown = mover
+      // Impede a rolagem da página ao usar as setas.
+      document.addEventListener('keydown', (e) => {
+        if ([TECLAS.CIMA, TECLAS.BAIXO, TECLAS.ESQUERDA, TECLAS.DIREITA, TECLAS.SPACE].includes(e.keyCode)) {
+          e.preventDefault()
+        }
+        mover(e)
+      })
+
+      $reiniciar.addEventListener('click', montaJogo)
     </script>
   </body>
 
