@@ -1,0 +1,204 @@
+/* ===== Paleta e medidas do jogo ===== */
+:root {
+  --bg-1: #2a3a63;
+  --bg-2: #161e36;
+  --card: rgba(255, 255, 255, 0.06);
+  --borda: rgba(255, 255, 255, 0.12);
+  --casa-1: #57979a;
+  --casa-2: #3f7274;
+  --mover: #7fd4d6;
+  --brilho: #a8f0f2;
+  --gato: #ffd76a;
+  --rato: #e7edf5;
+  --accent-1: #ff6b6b;
+  --accent-2: #ffa14a;
+  --vitoria: #4ade80;
+  --texto: #f4f7fb;
+  --suave: rgba(244, 247, 251, 0.7);
+  /* Tabuleiro sempre quadrado e cabendo na tela (largura E altura):
+     resolve o "esticar" no desktop e o corte no celular. */
+  --board: min(92vw, 66vh, 460px);
+  --gap: clamp(4px, 1.4vw, 9px);
+}
+
+* { box-sizing: border-box; }
+
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: env(safe-area-inset-top, 16px) 16px env(safe-area-inset-bottom, 16px);
+  background: radial-gradient(120% 120% at 50% 0%, #35477190 0%, var(--bg-1) 45%, var(--bg-2) 100%);
+  color: var(--texto);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+main {
+  width: 100%;
+  max-width: 500px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+h1 {
+  margin: 0;
+  text-align: center;
+  font-size: clamp(22px, 6vw, 30px);
+  letter-spacing: 2px;
+  font-weight: 800;
+  background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* ===== Placar ===== */
+#pontuacao {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+}
+
+.stat {
+  flex: 1;
+  min-width: 0;
+  background: var(--card);
+  border: 1px solid var(--borda);
+  border-radius: 12px;
+  padding: 8px 4px;
+  text-align: center;
+}
+
+.stat b {
+  display: block;
+  font-size: clamp(17px, 5vw, 21px);
+  font-weight: 800;
+}
+
+.stat span {
+  display: block;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--suave);
+}
+
+/* ===== Mensagem de estado ===== */
+#mensagem {
+  width: 100%;
+  padding: 13px 16px;
+  border-radius: 14px;
+  text-align: center;
+  font-size: clamp(14px, 4vw, 17px);
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
+  box-shadow: 0 8px 20px -8px rgba(255, 107, 107, 0.6);
+  transition: background 0.25s, box-shadow 0.25s;
+}
+
+#mensagem.venceu {
+  background: linear-gradient(90deg, #22c55e, var(--vitoria));
+  box-shadow: 0 8px 20px -8px rgba(34, 197, 94, 0.6);
+}
+
+/* ===== Tabuleiro 5x5 ===== */
+#tabuleiro {
+  width: var(--board);
+  height: var(--board);
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  grid-template-rows: repeat(5, 1fr);
+  gap: var(--gap);
+  touch-action: none; /* permite arrastar (swipe) sem rolar a página */
+}
+
+.local {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: linear-gradient(180deg, var(--casa-1), var(--casa-2));
+  box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.18);
+  user-select: none;
+  transition: transform 0.08s, box-shadow 0.15s, filter 0.15s;
+}
+
+/* Casas para onde o gato pode ir: destacadas com brilho */
+.local.mover {
+  cursor: pointer;
+  background: linear-gradient(180deg, var(--mover), #4f9d9f);
+  box-shadow: inset 0 0 0 3px var(--brilho), 0 0 12px -2px var(--brilho);
+}
+
+.local.mover:active { transform: scale(0.94); }
+
+@media (hover: hover) {
+  .local.mover:hover { filter: brightness(1.08); }
+}
+
+/* ===== Personagens em ASCII ===== */
+#gato, .rato {
+  margin: 0;
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: clamp(9px, calc(var(--board) / 22), 22px);
+  line-height: 1.05;
+  text-align: center;
+  font-weight: 700;
+}
+
+.rato { color: var(--rato); animation: aparece 0.25s ease; }
+#gato { color: var(--gato); }
+#gato.pulo { animation: pulo 0.18s ease; }
+#gato.comeu { animation: comeu 0.3s ease; }
+
+@keyframes aparece { from { opacity: 0; transform: scale(0.4); } }
+@keyframes pulo { from { transform: scale(0.7); } }
+@keyframes comeu { 50% { transform: scale(1.35); filter: brightness(1.4); } }
+
+/* ===== Botão reiniciar ===== */
+#reiniciar {
+  appearance: none;
+  border: 1px solid var(--borda);
+  background: var(--card);
+  color: var(--texto);
+  font: inherit;
+  font-weight: 700;
+  padding: 12px 24px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: transform 0.08s, background 0.15s;
+}
+
+#reiniciar:hover { background: rgba(255, 255, 255, 0.12); }
+#reiniciar:active { transform: scale(0.96); }
+/* Ao vencer, o botão pulsa convidando a rejogar */
+#reiniciar.destaque { animation: pulsa 1s ease infinite; }
+
+@keyframes pulsa {
+  50% { box-shadow: 0 0 0 6px rgba(74, 222, 128, 0.25); border-color: var(--vitoria); }
+}
+
+/* ===== Instruções ===== */
+#info {
+  margin: 0;
+  max-width: 460px;
+  text-align: center;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--suave);
+}
+
+#info b { color: var(--texto); }
+
+/* Respeita quem prefere menos animação */
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
