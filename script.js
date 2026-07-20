@@ -16,9 +16,16 @@ const $mensagem = document.querySelector('#mensagem')
 const $tabuleiro = document.querySelector('#tabuleiro')
 const $reiniciar = document.querySelector('#reiniciar')
 
-// --- Desenhos em ASCII (orelhas pontudas = gato, redondas = rato) ---
-const GATO = '<pre id="gato">/\\_/\\\n(o.o)</pre>'
-const RATO = '<pre class="rato">()_()\n(o.o)</pre>'
+// --- Desenhos em ASCII (o gato e o rato originais) ---
+const GATO = `<pre id="gato"> .       .
+ |\\_---_/|
+/   o_o   \\
+|    U    |
+\\  ._I_.  /
+ \`-_____-'</pre>`
+const RATO = `<pre class="rato">()-()
+ \\"/
+  \`</pre>`
 
 const MENSAGENS = {
   inicio: 'Pegue todos os ratos!',

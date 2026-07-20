@@ -148,9 +148,10 @@ h1 {
 #gato, .rato {
   margin: 0;
   font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-  font-size: clamp(9px, calc(var(--board) / 22), 22px);
-  line-height: 1.05;
-  text-align: center;
+  /* fonte pequena o bastante para o desenho caber na casa em qualquer tela */
+  font-size: clamp(6px, calc(var(--board) / 42), 13px);
+  line-height: 1;
+  text-align: left; /* arte ASCII precisa alinhar as linhas à esquerda */
   font-weight: 700;
 }
 
